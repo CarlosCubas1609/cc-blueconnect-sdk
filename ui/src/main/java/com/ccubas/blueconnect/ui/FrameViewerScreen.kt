@@ -39,6 +39,8 @@ import com.ccubas.blueconnect.core.BlueConnectClient
 import com.ccubas.blueconnect.core.model.BluetoothFrame
 import com.ccubas.blueconnect.core.model.ConnectionState
 import com.ccubas.blueconnect.core.model.DeviceInfo
+import com.ccubas.blueconnect.core.model.ScanError
+import com.ccubas.blueconnect.ui.permission.rememberBluetoothEnableLauncher
 import kotlinx.coroutines.launch
 
 /**
@@ -75,9 +77,22 @@ fun FrameViewerScreen(
     var demoMode by remember { mutableStateOf(false) }
     var scanErrorMessage by remember { mutableStateOf<String?>(null) }
 
+    val requestEnableBluetooth = rememberBluetoothEnableLauncher(
+        onEnabled = {
+            scanErrorMessage = null
+            scope.launch { client.startScan() }
+        },
+        onDeclined = {
+            scanErrorMessage = "Bluetooth must be enabled to scan."
+        },
+    )
+
     LaunchedEffect(client) {
         client.scanError.collect { error ->
-            scanErrorMessage = error.message
+            when (error) {
+                is ScanError.BluetoothDisabled -> requestEnableBluetooth()
+                else -> scanErrorMessage = error.message
+            }
         }
     }
 

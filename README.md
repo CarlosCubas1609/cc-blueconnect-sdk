@@ -76,6 +76,27 @@ RequestBluetoothPermissions(
 If you're not on Compose, request them yourself — the SDK exposes
 `BluetoothPermissionUtils.getRequiredPermissions()`.
 
+#### Asking the user to turn Bluetooth on
+
+`FrameViewerScreen` already does this for you: when `client.scanError` emits
+`ScanError.BluetoothDisabled`, it pops the system "Turn on Bluetooth?" prompt and retries the
+scan if the user accepts.
+
+If you're rolling your own UI, the same helper is available standalone:
+
+```kotlin
+val requestEnableBluetooth = rememberBluetoothEnableLauncher(
+    onEnabled = { scope.launch { client.startScan() } },
+    onDeclined = { /* show rationale */ },
+)
+
+LaunchedEffect(client) {
+    client.scanError.collect { error ->
+        if (error is ScanError.BluetoothDisabled) requestEnableBluetooth()
+    }
+}
+```
+
 ### 3. Scan and connect
 
 ```kotlin

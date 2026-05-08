@@ -1,6 +1,6 @@
 # cc-blueconnect-sdk
 
-[![](https://jitpack.io/v/CarlosCubas1609/BlueConnect.svg)](https://jitpack.io/#CarlosCubas1609/BlueConnect)
+[![](https://jitpack.io/v/CarlosCubas1609/cc-blueconnect-sdk.svg)](https://jitpack.io/#CarlosCubas1609/cc-blueconnect-sdk)
 
 Lightweight Android Bluetooth toolkit for **scanning, connecting, and reading frames** from
 BLE GATT, Bluetooth Classic (SPP/RFCOMM), and Chipsea-style advertisement-broadcasting devices
@@ -14,7 +14,7 @@ add-on modules so the core stays small.
 
 ## Modules
 
-All artifacts share the JitPack groupId `com.github.CarlosCubas1609.BlueConnect`.
+All artifacts share the JitPack groupId `com.github.CarlosCubas1609.cc-blueconnect-sdk`.
 
 | Module                | Artifact id          | Purpose                                                            |
 |-----------------------|----------------------|--------------------------------------------------------------------|
@@ -51,12 +51,12 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.CarlosCubas1609.BlueConnect:bluetooth:1.0.0")
+    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:bluetooth:1.0.0")
 
     // Optional add-ons (each one is opt-in):
-    implementation("com.github.CarlosCubas1609.BlueConnect:storage-datastore:1.0.0")
-    implementation("com.github.CarlosCubas1609.BlueConnect:parser-weight:1.0.0")
-    implementation("com.github.CarlosCubas1609.BlueConnect:ui:1.0.0")
+    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:storage-datastore:1.0.0")
+    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:parser-weight:1.0.0")
+    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:ui:1.0.0")
 }
 ```
 
@@ -404,7 +404,7 @@ The repo is configured for JitPack-via-tag releases:
 1. Bump `SDK_VERSION` in `gradle.properties` if you want a default for local builds (JitPack
    itself overrides it from the Git tag).
 2. Commit, then create a Git tag matching the version: `git tag 1.0.1 && git push --tags`.
-3. JitPack picks up the tag automatically. Open https://jitpack.io/#CarlosCubas1609/BlueConnect
+3. JitPack picks up the tag automatically. Open https://jitpack.io/#CarlosCubas1609/cc-blueconnect-sdk
    and click **Get it** on the new tag if you want to force the build right away.
 4. The build runs `./gradlew :core:publishToMavenLocal …` for every library module
    (see `jitpack.yml`); the resulting AARs become available a couple of minutes later.
@@ -413,7 +413,7 @@ Local sanity check before tagging:
 
 ```bash
 ./gradlew publishToMavenLocal
-ls ~/.m2/repository/com/github/CarlosCubas1609/BlueConnect/
+ls ~/.m2/repository/com/github/CarlosCubas1609/cc-blueconnect-sdk/
 ```
 
 You should see `core/`, `bluetooth/`, `storage-datastore/`, `parser-weight/`, `ui/` each

@@ -38,11 +38,11 @@ internal class BleScanSource(private val context: Context) : IScanSource {
 
         val callback = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
-                result?.let { trySend(ScanEvent.DeviceFound(it.device, it.rssi)) }
+                result?.let { trySend(ScanEvent.DeviceFound(it.device, it.rssi, nameOf(it))) }
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-                results?.forEach { trySend(ScanEvent.DeviceFound(it.device, it.rssi)) }
+                results?.forEach { trySend(ScanEvent.DeviceFound(it.device, it.rssi, nameOf(it))) }
             }
 
             override fun onScanFailed(errorCode: Int) {
@@ -79,6 +79,16 @@ internal class BleScanSource(private val context: Context) : IScanSource {
             }
         }
     }
+
+    /**
+     * Prefer the name carried inside the advertisement payload (no extra permissions, no
+     * cache dependency). Fall back to the platform cache via `device.name` only if the AD
+     * didn't include the LocalName element.
+     */
+    @SuppressLint("MissingPermission")
+    private fun nameOf(result: ScanResult): String? =
+        result.scanRecord?.deviceName?.takeIf { it.isNotBlank() }
+            ?: runCatching { result.device.name }.getOrNull()
 
     private companion object {
         const val TAG = "BleScanSource"

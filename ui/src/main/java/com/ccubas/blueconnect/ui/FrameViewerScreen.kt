@@ -325,6 +325,10 @@ private fun ConnectionStateCard(connectionState: ConnectionState) {
 @SuppressLint("MissingPermission")
 @Composable
 private fun DeviceRow(info: DeviceInfo, onConnect: (BluetoothDevice) -> Unit) {
+    val displayName = info.resolvedName?.takeIf { it.isNotBlank() }
+        ?: info.device.safeName().ifEmpty { null }
+        ?: "(no name)"
+
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = Modifier.fillMaxWidth(),
@@ -337,7 +341,7 @@ private fun DeviceRow(info: DeviceInfo, onConnect: (BluetoothDevice) -> Unit) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = info.device.safeName().ifEmpty { "(no name)" },
+                    text = displayName,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                 )

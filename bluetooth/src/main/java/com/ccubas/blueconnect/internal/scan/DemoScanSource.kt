@@ -40,7 +40,7 @@ internal class DemoScanSource(
             try {
                 val device = adapter.getRemoteDevice(address)
                 Log.d(TAG, "DEMO device emitted: $name ($address)")
-                emit(ScanEvent.DeviceFound(device, rssi))
+                emit(ScanEvent.DeviceFound(device, rssi, name))
             } catch (e: Exception) {
                 Log.e(TAG, "Error creating DEMO device $address: ${e.message}")
             }

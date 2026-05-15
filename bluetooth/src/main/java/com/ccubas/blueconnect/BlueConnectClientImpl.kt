@@ -155,7 +155,8 @@ internal class BlueConnectClientImpl internal constructor(
             .flatMapMerge { source -> source.scan() }
             .collect { event ->
                 when (event) {
-                    is ScanEvent.DeviceFound -> addDevice(event.device, event.rssi)
+                    is ScanEvent.DeviceFound -> addDevice(event.device, event.rssi, event.name)
+                    is ScanEvent.DeviceNameResolved -> updateDeviceName(event.device, event.name)
                     is ScanEvent.Error -> _scanError.emit(event.error)
                 }
             }
@@ -173,11 +174,26 @@ internal class BlueConnectClientImpl internal constructor(
     }
 
     @SuppressLint("MissingPermission")
-    private fun addDevice(device: BluetoothDevice, rssi: Int) {
+    private fun addDevice(device: BluetoothDevice, rssi: Int, name: String?) {
         _discoveredDevices.update { current ->
-            current + (device.address to DeviceInfo(device = device, rssi = rssi))
+            val existing = current[device.address]
+            val resolvedName = name?.takeIf { it.isNotBlank() } ?: existing?.resolvedName
+            current + (device.address to DeviceInfo(device, rssi, resolvedName))
         }
-        Log.d(TAG, "Device discovered: ${device.address} | Name: '${device.name}' | Type: ${device.type} | RSSI: $rssi")
+        Log.d(TAG, "Device discovered: ${device.address} | Name: '$name' | Type: ${device.type} | RSSI: $rssi")
+    }
+
+    /**
+     * Late name resolution from a source (e.g. Classic SDP completing after `ACTION_FOUND`).
+     * Merges the name into the existing entry without overwriting RSSI.
+     */
+    private fun updateDeviceName(device: BluetoothDevice, name: String) {
+        _discoveredDevices.update { current ->
+            val existing = current[device.address] ?: return@update current
+            if (existing.resolvedName == name) current
+            else current + (device.address to existing.copy(resolvedName = name))
+        }
+        Log.d(TAG, "Device name resolved: ${device.address} -> '$name'")
     }
 
     // ==================== CONNECTION (delegated dynamically) ====================

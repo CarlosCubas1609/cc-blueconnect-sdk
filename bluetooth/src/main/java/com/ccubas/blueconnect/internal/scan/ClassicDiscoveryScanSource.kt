@@ -53,9 +53,19 @@ internal class ClassicDiscoveryScanSource(private val context: Context) : IScanS
                         val rssi = intent
                             .getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE)
                             .toInt()
+                        val name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME)
                         device?.let {
-                            Log.d(TAG, "Classic device found: ${it.address} RSSI=$rssi")
-                            trySend(ScanEvent.DeviceFound(it, rssi))
+                            Log.d(TAG, "Classic device found: ${it.address} name='$name' RSSI=$rssi")
+                            trySend(ScanEvent.DeviceFound(it, rssi, name))
+                        }
+                    }
+
+                    BluetoothDevice.ACTION_NAME_CHANGED -> {
+                        val device = extractDevice(intent)
+                        val name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME)
+                        if (device != null && !name.isNullOrBlank()) {
+                            Log.d(TAG, "Classic name resolved: ${device.address} -> '$name'")
+                            trySend(ScanEvent.DeviceNameResolved(device, name))
                         }
                     }
 
@@ -71,6 +81,7 @@ internal class ClassicDiscoveryScanSource(private val context: Context) : IScanS
 
         val filter = IntentFilter().apply {
             addAction(BluetoothDevice.ACTION_FOUND)
+            addAction(BluetoothDevice.ACTION_NAME_CHANGED)
             addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
         }
         ContextCompat.registerReceiver(

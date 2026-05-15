@@ -51,12 +51,12 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:bluetooth:1.0.1")
+    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:bluetooth:1.0.2")
 
     // Optional add-ons (each one is opt-in):
-    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:storage-datastore:1.0.1")
-    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:parser-weight:1.0.1")
-    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:ui:1.0.1")
+    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:storage-datastore:1.0.2")
+    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:parser-weight:1.0.2")
+    implementation("com.github.CarlosCubas1609.cc-blueconnect-sdk:ui:1.0.2")
 }
 ```
 
@@ -423,6 +423,24 @@ containing the version directory you published.
 > `-classpath`). On Windows + JDK 20+, run via `bash gradlew …` or upgrade the wrapper.
 
 ## Changelog
+
+### 1.0.2
+
+**Fixes**
+
+- Device names now resolve correctly during scan. Previously many entries showed up as
+  `(no name)` because the SDK relied on the lazy `BluetoothDevice.getName()` cache, which is
+  frequently null on first sight.
+  - BLE: name is now pulled from `ScanRecord.deviceName` (the LocalName element inside the
+    advertisement payload).
+  - Classic: name is pulled from `ACTION_FOUND`'s `EXTRA_NAME`, and the source now also
+    listens to `ACTION_NAME_CHANGED` so entries refresh once SDP resolves the name post-discovery.
+
+**Public API**
+
+- `DeviceInfo` gained a `resolvedName: String?` field (default `null`) carrying the name
+  captured at discovery time. Source-compatible: existing callers continue to work; UI code
+  should prefer `info.resolvedName ?: info.device.name` to surface names reliably.
 
 ### 1.0.1
 

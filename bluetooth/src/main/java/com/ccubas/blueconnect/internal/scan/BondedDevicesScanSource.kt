@@ -26,8 +26,9 @@ internal class BondedDevicesScanSource(private val context: Context) : IScanSour
 
         try {
             adapter.bondedDevices?.forEach { device ->
-                Log.d(TAG, "Bonded device: ${device.address}")
-                emit(ScanEvent.DeviceFound(device, rssi = 0))
+                val name = runCatching { device.name }.getOrNull()
+                Log.d(TAG, "Bonded device: ${device.address} name='$name'")
+                emit(ScanEvent.DeviceFound(device, rssi = 0, name = name))
             }
         } catch (e: SecurityException) {
             Log.e(TAG, "Permission denied accessing bonded devices", e)

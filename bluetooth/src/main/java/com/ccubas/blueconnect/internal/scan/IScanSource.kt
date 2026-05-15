@@ -28,8 +28,26 @@ internal interface IScanSource {
 /** Result of one scan source emitting through its [IScanSource.scan] flow. */
 internal sealed interface ScanEvent {
 
-    /** A device was discovered (or re-discovered with a fresher RSSI). */
-    data class DeviceFound(val device: BluetoothDevice, val rssi: Int) : ScanEvent
+    /**
+     * A device was discovered (or re-discovered with a fresher RSSI).
+     *
+     * @param name Friendly name from the advertisement payload, when carried. Sources should
+     *             populate this from the broadcast/scan-record (not from `device.name`, which
+     *             is cache-dependent and frequently null at first-sight).
+     */
+    data class DeviceFound(
+        val device: BluetoothDevice,
+        val rssi: Int,
+        val name: String? = null,
+    ) : ScanEvent
+
+    /**
+     * A device's name was resolved after first discovery. Emitted by sources that observe
+     * late name resolution (e.g. Classic `ACTION_NAME_CHANGED` after SDP completes).
+     *
+     * The coordinator merges this into the existing entry without touching RSSI.
+     */
+    data class DeviceNameResolved(val device: BluetoothDevice, val name: String) : ScanEvent
 
     /** The source hit a non-fatal error. Other sources keep running. */
     data class Error(val error: ScanError) : ScanEvent
